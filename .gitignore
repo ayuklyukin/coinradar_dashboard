@@ -1,0 +1,11 @@
+.streamlit/secrets.toml
+__pycache__/
+*.pyc
+
+
+venv/
+*.env
+*.log
+*.sqlite3
+.DS_Store
+.idea/
