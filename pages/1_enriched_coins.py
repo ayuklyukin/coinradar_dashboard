@@ -1,7 +1,8 @@
-# coinradar_dashboard/1_Enriched_Coins.py
+# coinradar_dashboard/pages/1_Enriched_Coins.py
 import streamlit as st
 import pandas as pd
 import psycopg2
+import time
 
 st.set_page_config(page_title="Enriched Coins", layout="wide")
 st.title("💎 Обогащённые монеты")
@@ -15,7 +16,6 @@ conn = psycopg2.connect(
     port=st.secrets["SUPABASE_DB_PORT"]
 )
 
-@st.cache_data(ttl=20)
 def load_data():
     with conn.cursor() as cur:
         cur.execute("""
@@ -32,6 +32,18 @@ def load_data():
         ]
         return pd.DataFrame(rows, columns=cols)
 
-# Отображаем данные
+# Таймер автообновления
+st.markdown("⏱️ Данные обновляются автоматически каждые **15 секунд**")
+
+# Кнопка обновить вручную
+if st.button("🔄 Обновить сейчас"):
+    st.session_state.last_refresh = time.time()
+
+# Автообновление
+last_refresh = st.session_state.get("last_refresh", 0)
+if time.time() - last_refresh > 15:
+    st.session_state.last_refresh = time.time()
+
+# Загрузка данных
 coins_df = load_data()
 st.dataframe(coins_df, use_container_width=True)
